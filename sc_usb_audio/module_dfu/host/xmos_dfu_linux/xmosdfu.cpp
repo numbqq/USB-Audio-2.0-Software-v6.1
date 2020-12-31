@@ -149,18 +149,22 @@ static int find_xmos_device(unsigned int id, unsigned int list)
 
 int xmos_dfu_resetdevice(void) {
   libusb_control_transfer(devh, DFU_REQUEST_TO_DEV, XMOS_DFU_RESETDEVICE, 0, 0, NULL, 0, 0);
+  return 0;
 }
 
 int xmos_dfu_revertfactory(void) {
   libusb_control_transfer(devh, DFU_REQUEST_TO_DEV, XMOS_DFU_REVERTFACTORY, 0, 0, NULL, 0, 0);
+  return 0;
 }
 
 int xmos_dfu_resetintodfu(unsigned int interface) {
   libusb_control_transfer(devh, DFU_REQUEST_TO_DEV, XMOS_DFU_RESETINTODFU, 0, interface, NULL, 0, 0);
+  return 0;
 }
 
 int xmos_dfu_resetfromdfu(unsigned int interface) {
   libusb_control_transfer(devh, DFU_REQUEST_TO_DEV, XMOS_DFU_RESETFROMDFU, 0, interface, NULL, 0, 0);
+  return 0;
 }
 
 int dfu_detach(unsigned int interface, unsigned int timeout) {
@@ -309,6 +313,8 @@ int read_dfu_image(char *file) {
   }
 
   fclose(outFile);
+
+  return 0;
 }
 
 int main(int argc, char **argv) {
