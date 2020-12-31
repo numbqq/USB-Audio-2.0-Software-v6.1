@@ -13,6 +13,7 @@
 #define XMOS_L2_AUDIO2_PID 0x0004
 #define XMOS_SU1_AUDIO2_PID 0x0008
 #define XMOS_U8_MFA_AUDIO2_PID 0x000A
+#define TONE1_OLD_PID   0x30bf
 #define TONE1_PID       0xa001
 #define TONE2_PRO_PID   0xa002
 #define TONE2_MAX_PID   0xa003
@@ -25,6 +26,7 @@ unsigned short pidList[] = {XMOS_XCORE_AUDIO_AUDIO2_PID,
                             XMOS_SU1_AUDIO2_PID, 
                             XMOS_U8_MFA_AUDIO2_PID,
                             TONE1_PID,
+                            TONE1_OLD_PID,
                             TONE2_PID,
                             TONE2_PRO_PID,
                             TONE2_MAX_PID};
@@ -70,7 +72,7 @@ static void check_khadas_devices(uint16_t idVendor, uint16_t idProduct)
 	}
 	else if (XMOS_VID == idVendor)
 	{
-		if (XMOS_SU1_AUDIO2_PID == idProduct)
+		if (XMOS_SU1_AUDIO2_PID == idProduct || TONE1_OLD_PID == idProduct)
 			printf("Khadas Tone1 detected!\n");
 	}
 }
