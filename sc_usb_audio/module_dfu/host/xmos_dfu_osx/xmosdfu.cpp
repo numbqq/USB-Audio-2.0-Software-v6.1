@@ -5,10 +5,18 @@
 
 /* the device's vendor and product id */
 #define XMOS_VID 0x20b1
+#define KHADAS_VID	0x3353
+
 #define XMOS_L1_AUDIO2_PID 0x0002
 #define XMOS_L1_AUDIO1_PID 0x0003
 #define XMOS_L2_AUDIO2_PID 0x0004
 #define XMOS_SU1_AUDIO2_PID 0x0008
+
+#define TONE1_OLD_PID   0x30bf
+#define TONE1_PID       0xa001
+#define TONE2_PRO_PID   0xa002
+#define TONE2_MAX_PID   0xa003
+#define TONE2_PID       0xa004
 
 unsigned int XMOS_DFU_IF = 0;
 
@@ -33,6 +41,28 @@ unsigned int XMOS_DFU_IF = 0;
 #define XMOS_DFU_RESTORESTATE   	0xf6
 
 static libusb_device_handle *devh = NULL;
+static uint16_t idVendor = 0;
+static uint16_t idProduct = 0;
+
+static void check_khadas_devices(uint16_t idVendor, uint16_t idProduct)
+{
+	if (KHADAS_VID == idVendor)
+	{
+		if (TONE2_PID == idProduct)
+			printf("Khadas Tone2 detected!\n");
+		else if (TONE2_PRO_PID == idProduct)
+			printf("Khadas Tone2 Pro detected!\n");
+		else if (TONE2_MAX_PID == idProduct)
+			printf("Khadas Tone2 Max detected!\n");
+		else if (TONE1_PID == idProduct)
+			printf("Khadas Tone1 detected!\n");
+	}
+	else if (XMOS_VID == idVendor)
+	{
+		if (XMOS_SU1_AUDIO2_PID == idProduct || TONE1_OLD_PID == idProduct)
+			printf("Khadas Tone1 detected!\n");
+	}
+}
 
 static int find_xmos_device(unsigned int id) 
 {
@@ -48,13 +78,20 @@ static int find_xmos_device(unsigned int id)
         struct libusb_device_descriptor desc;
         libusb_get_device_descriptor(dev, &desc); 
         printf("VID = 0x%x, PID = 0x%x\n", desc.idVendor, desc.idProduct);
-        if (desc.idVendor == XMOS_VID && 
+        if ((desc.idVendor == XMOS_VID || desc.idVendor == KHADAS_VID) &&
             ((desc.idProduct == XMOS_L1_AUDIO1_PID) || 
             (desc.idProduct == XMOS_L1_AUDIO2_PID) ||
             (desc.idProduct == XMOS_SU1_AUDIO2_PID) ||
-            (desc.idProduct == XMOS_L2_AUDIO2_PID))) 
+            (desc.idProduct == XMOS_L2_AUDIO2_PID) ||
+			(desc.idProduct == TONE1_OLD_PID) ||
+			(desc.idProduct == TONE1_PID) ||
+			(desc.idProduct == TONE2_PRO_PID) ||
+			(desc.idProduct == TONE2_MAX_PID) ||
+			(desc.idProduct == TONE2_PID)))
         {
-            if (found == id) 
+			idVendor = desc.idVendor;
+			idProduct = desc.idProduct;
+            if (found == id)
             {
                 if (libusb_open(dev, &devh) < 0) 
                 {
@@ -321,12 +358,14 @@ int main(int argc, char **argv) {
     return -1;
   }
 
+  check_khadas_devices(idVendor, idProduct);
+
   r = libusb_claim_interface(devh, XMOS_DFU_IF);
   if (r < 0) {
     fprintf(stderr, "Error claiming interface %d %d\n", XMOS_DFU_IF, r);
     return -1;
   }
-  printf("XMOS DFU application started - Interface %d claimed\n", XMOS_DFU_IF);
+  printf("Tone DFU application started - Interface %d claimed\n", XMOS_DFU_IF);
 
   /* Dont go into DFU mode for save/restore */
   if(save) 
